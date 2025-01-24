@@ -48,8 +48,8 @@ const BottomTabNavigator = () => {
             })}
         >
             <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Statistics" component={StatisticsScreen} />
             <Tab.Screen name="Wallets" component={WalletScreen} />
+            <Tab.Screen name="Statistics" component={StatisticsScreen} />
             <Tab.Screen name="User" component={UserScreen} />
         </Tab.Navigator>
     );

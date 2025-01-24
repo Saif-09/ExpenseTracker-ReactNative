@@ -12,11 +12,13 @@ import { Modalize } from 'react-native-modalize';
 import BalanceCard from '../../components/Home/BalanceCard';
 import RecentTransactions from '../../components/Home/RecentTransactions';
 import TransactionBottomSheet from '../../components/Home/TransactionBottomSheet';
+import SearchBottomSheet from '../../components/Home/SearchBottomSheet';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const HomeScreen = () => {
     const modalizeRef = useRef(null);
+    const searchModalizeRef = useRef(null);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
     const openModal = (transaction = null) => {
@@ -29,6 +31,20 @@ const HomeScreen = () => {
         modalizeRef.current?.close();
     };
 
+    const openSearchModal = () => {
+        searchModalizeRef.current?.open();
+    };
+
+    const closeSearchModal = () => {
+        searchModalizeRef.current?.close();
+    };
+
+    const handleTransactionPress = (transaction) => {
+        setSelectedTransaction(transaction); // Set the selected transaction
+        closeSearchModal(); // Close the search bottom sheet
+        openModal(transaction); // Open the update transaction bottom sheet
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -36,7 +52,7 @@ const HomeScreen = () => {
                     <Text style={styles.greeting}>Hey,</Text>
                     <Text style={styles.username}>Saif Siddiqui</Text>
                 </View>
-                <TouchableOpacity style={styles.searchButton}>
+                <TouchableOpacity style={styles.searchButton} onPress={openSearchModal}>
                     <Icon name="search-outline" size={26} color="#f7f7f7" />
                 </TouchableOpacity>
             </View>
@@ -48,9 +64,10 @@ const HomeScreen = () => {
                 <Icon name="add" size={30} color="#fff" />
             </TouchableOpacity>
 
+            {/* Add Transaction/Update Transaction Bottom Sheet */}
             <Modalize
                 ref={modalizeRef}
-                snapPoint={SCREEN_HEIGHT * 0.8}
+                snapPoint={SCREEN_HEIGHT * 0.9}
                 modalHeight={SCREEN_HEIGHT}
                 handlePosition="inside"
                 handleStyle={{ display: 'none' }}
@@ -71,6 +88,30 @@ const HomeScreen = () => {
                     modalizeRef={modalizeRef}
                     closeModal={closeModal}
                     transaction={selectedTransaction}
+                />
+            </Modalize>
+
+            {/* Search Bottom Sheet */}
+            <Modalize
+                ref={searchModalizeRef}
+                snapPoint={SCREEN_HEIGHT * 0.9}
+                modalHeight={SCREEN_HEIGHT}
+                handlePosition="inside"
+                handleStyle={{ display: 'none' }}
+                HeaderComponent={
+                    <SafeAreaView>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Search</Text>
+                            <TouchableOpacity onPress={closeSearchModal}>
+                                <Icon name="close" size={24} color="#f7f7f7" />
+                            </TouchableOpacity>
+                        </View>
+                    </SafeAreaView>
+                }
+            >
+                <SearchBottomSheet
+                    closeModal={closeSearchModal}
+                    onTransactionPress={handleTransactionPress} // Pass the handler
                 />
             </Modalize>
         </SafeAreaView>

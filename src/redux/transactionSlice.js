@@ -5,11 +5,6 @@ const initialState = {
     balance: 0,
     income: 0,
     expense: 0,
-    wallets: {
-        salary: 0,
-        freelancing: 0,
-        sideHustle: 0,
-    },
 };
 
 const transactionSlice = createSlice({
@@ -37,11 +32,9 @@ const transactionSlice = createSlice({
             if (type === 'income') {
                 state.balance += parseFloat(amount);
                 state.income += parseFloat(amount);
-                state.wallets[wallet] += parseFloat(amount);
             } else {
                 state.balance -= parseFloat(amount);
                 state.expense += parseFloat(amount);
-                state.wallets[wallet] -= parseFloat(amount);
             }
         },
         updateTransaction: (state, action) => {
@@ -65,22 +58,18 @@ const transactionSlice = createSlice({
             if (oldTransaction.type === 'income') {
                 state.balance -= oldTransaction.amount;
                 state.income -= oldTransaction.amount;
-                state.wallets[oldTransaction.wallet] -= oldTransaction.amount;
             } else {
                 state.balance += oldTransaction.amount;
                 state.expense -= oldTransaction.amount;
-                state.wallets[oldTransaction.wallet] += oldTransaction.amount;
             }
 
             // Apply new transaction amounts
             if (type === 'income') {
                 state.balance += parseFloat(amount);
                 state.income += parseFloat(amount);
-                state.wallets[wallet] += parseFloat(amount);
             } else {
                 state.balance -= parseFloat(amount);
                 state.expense += parseFloat(amount);
-                state.wallets[wallet] -= parseFloat(amount);
             }
 
             state.transactions[transactionIndex] = newTransaction;

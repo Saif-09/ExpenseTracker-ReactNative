@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image, ScrollView, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
@@ -6,11 +6,14 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import CustomDropdown from '../../utils/CustomDropdown';
 import { isIOS } from '../../utils/responsiveUtil';
 import { categoryOptions } from '../../assets/expenseCategory';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, updateTransaction } from '../../redux/transactionSlice';
+import { updateWalletBalance } from '../../redux/walletSlice';
+
 
 const TransactionBottomSheet = ({ modalizeRef, closeModal, transaction }) => {
     const dispatch = useDispatch();
+    const wallets = useSelector((state) => state.wallets.wallets); // Fetch wallets from walletSlice
     const [type, setType] = useState(transaction?.type ? { label: transaction.type === 'income' ? 'Income' : 'Expense', value: transaction.type } : null);
     const [wallet, setWallet] = useState(transaction?.wallet ? { label: transaction.wallet, value: transaction.wallet } : null);
     const [category, setCategory] = useState(transaction?.category ? { label: transaction.category, value: transaction.category } : null);
@@ -25,11 +28,10 @@ const TransactionBottomSheet = ({ modalizeRef, closeModal, transaction }) => {
         { label: 'Income', value: 'income' },
     ];
 
-    const walletOptions = [
-        { label: 'Salary', value: 'salary' },
-        { label: 'Freelancing', value: 'freelancing' },
-        { label: 'Side Hustle', value: 'sideHustle' },
-    ];
+    const walletOptions = wallets.map((wallet) => ({
+        label: wallet.name,
+        value: wallet.name,
+    }));
 
     const handleDateConfirm = (selectedDate) => {
         setDatePickerVisible(false);
@@ -81,8 +83,31 @@ const TransactionBottomSheet = ({ modalizeRef, closeModal, transaction }) => {
         };
 
         if (transaction) {
+            // Revert old transaction amounts
+            dispatch(
+                updateWalletBalance({
+                    walletName: transaction.wallet,
+                    amount: transaction.type === 'income' ? -transaction.amount : transaction.amount,
+                })
+            );
+
+            // Apply new transaction amounts
+            dispatch(
+                updateWalletBalance({
+                    walletName: wallet.value,
+                    amount: type.value === 'income' ? parseFloat(amount) : -parseFloat(amount),
+                })
+            );
+
             dispatch(updateTransaction(transactionData));
         } else {
+            dispatch(
+                updateWalletBalance({
+                    walletName: wallet.value,
+                    amount: type.value === 'income' ? parseFloat(amount) : -parseFloat(amount),
+                })
+            );
+
             dispatch(addTransaction(transactionData));
         }
 
