@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { saveState } from '../utils/asyncStorage';
 
 const initialState = {
     transactions: [],
@@ -36,6 +37,8 @@ const transactionSlice = createSlice({
                 state.balance -= parseFloat(amount);
                 state.expense += parseFloat(amount);
             }
+
+            saveState('transactions', state);
         },
         updateTransaction: (state, action) => {
             const { id, type, amount, category, description, date, wallet } = action.payload;
@@ -54,7 +57,6 @@ const transactionSlice = createSlice({
                 wallet,
             };
 
-            // Revert old transaction amounts
             if (oldTransaction.type === 'income') {
                 state.balance -= oldTransaction.amount;
                 state.income -= oldTransaction.amount;
@@ -63,7 +65,6 @@ const transactionSlice = createSlice({
                 state.expense -= oldTransaction.amount;
             }
 
-            // Apply new transaction amounts
             if (type === 'income') {
                 state.balance += parseFloat(amount);
                 state.income += parseFloat(amount);
@@ -73,6 +74,8 @@ const transactionSlice = createSlice({
             }
 
             state.transactions[transactionIndex] = newTransaction;
+
+            saveState('transactions', state);
         },
     },
 });
